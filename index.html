@@ -2,28 +2,24 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <!-- MODIFIKASI 1: Menambahkan viewport-fit=cover -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>Video Player & Embed Generator</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/pako@2.1.0/dist/pako.min.js"></script>
     <style>
-      /* For custom scrollbar styling */
       ::-webkit-scrollbar {
         width: 8px;
       }
       ::-webkit-scrollbar-track {
-        background: #1f2937; /* bg-gray-800 */
+        background: #1f2937;
       }
       ::-webkit-scrollbar-thumb {
-        background: #4b5563; /* bg-gray-600 */
+        background: #4b5563;
         border-radius: 4px;
       }
       ::-webkit-scrollbar-thumb:hover {
-        background: #6b7280; /* bg-gray-500 */
+        background: #6b7280;
       }
-
-      /* Hide default video controls for our custom player */
       video::-webkit-media-controls {
         display: none !important;
       }
@@ -39,27 +35,19 @@
       video::-webkit-media-controls-fullscreen-button {
         display: none !important;
       }
-
       .hidden {
         display: none !important;
       }
-
-      /* MODIFIKASI 2: Menambahkan CSS untuk safe-area saat fullscreen */
       #video-container:fullscreen #controls-container {
         padding-left: max(12px, env(safe-area-inset-left));
         padding-right: max(12px, env(safe-area-inset-right));
         padding-bottom: max(12px, env(safe-area-inset-bottom));
       }
-
-      /* Menyesuaikan watermark agar tidak terhalang poni saat fullscreen */
       #video-container:fullscreen #watermark-img {
           --safe-top: env(safe-area-inset-top, 12px);
           --safe-left: env(safe-area-inset-left, 12px);
           --safe-right: env(safe-area-inset-right, 12px);
           --safe-bottom: env(safe-area-inset-bottom, 12px);
-
-          /* Logika ini perlu disesuaikan di dalam Javascript agar lebih dinamis,
-             namun CSS ini memberikan dasar yang baik untuk posisi atas. */
           transform: translate(
             calc(var(--base-translate-x, 0%) + var(--offset-x, 0px)),
             calc(var(--base-translate-y, 0%) + var(--offset-y, 0px))
@@ -69,11 +57,9 @@
 </head>
 <body class="bg-gray-900">
     <div id="root">
-        <!-- App container will be dynamically generated here -->
     </div>
 
 <script type="module">
-  // --- STATE MANAGEMENT ---
   const state = {
     sources: [],
     watermarkUrl: 'https://timorles23-alt.github.io/iq-tes-player/2222.png',
@@ -82,7 +68,7 @@
         desktop: { size: 112, x: 12, y: 12 },
         mobile: { size: 60, x: 8, y: 8 },
     },
-    activeWatermarkView: 'desktop', // 'desktop' or 'mobile'
+    activeWatermarkView: 'desktop',
     generatedUrl: '',
     isEmbedMode: false,
   };
@@ -92,7 +78,6 @@
     SUBTITLE: 'subtitle',
   };
   
-  // --- GITHUB API HELPERS ---
   const CONFIG_URL = 'https://jsonbin-clone.bisay510.workers.dev/d3e16567-19dc-4634-a991-a3ebd4aa7ef7';
   const FILE_PATH = 'player-configs/';
   let githubConfig = null;
@@ -140,8 +125,6 @@
       return await response.json();
   };
 
-
-  // --- HTML TEMPLATES ---
   const ICONS = {
     play: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 sm:w-7 sm:h-7"><path d="M6 4l15 8-15 8V4z" /></svg>`,
     pause: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 sm:w-7 sm:h-7"><path fill-rule="evenodd" d="M6.75 5.25a.75.75 0 0 1 .75.75v12a.75.75 0 0 1-1.5 0V6a.75.75 0 0 1 .75-.75Zm9 0a.75.75 0 0 1 .75.75v12a.75.75 0 0 1-1.5 0V6a.75.75 0 0 1 .75-.75Z" clip-rule="evenodd" /></svg>`,
@@ -344,7 +327,6 @@
     <div id="embed-view" class="hidden"></div>
   `;
 
-  // --- RENDER FUNCTIONS ---
   function renderSourceList() {
     const container = document.getElementById('source-list-container');
     if (!container) return;
@@ -395,7 +377,6 @@
         });
     });
     
-    // Hide generated URL when sources change, forcing regeneration
     document.getElementById('embed-url-container').classList.add('hidden');
   }
 
@@ -408,7 +389,6 @@
     const videos = state.sources.filter(s => s.type === ResourceType.VIDEO);
     const subtitles = state.sources.filter(s => s.type === ResourceType.SUBTITLE);
     
-    // Remember current time to restore it after source change
     const currentTime = videoEl.currentTime;
 
     videoEl.innerHTML = '';
@@ -438,7 +418,7 @@
             trackEl.src = URL.createObjectURL(blob);
         } catch (e) {
             console.error('Error decompressing subtitle:', e);
-            return; // Skip this invalid track
+            return;
         }
       } else {
         trackEl.src = track.src;
@@ -495,7 +475,6 @@
             transformX = `-50%`;
         }
         
-        // Simpan variabel dasar untuk CSS
         watermarkImg.style.setProperty('--base-translate-x', transformX);
         watermarkImg.style.setProperty('--base-translate-y', transformY);
         watermarkImg.style.setProperty('--offset-x', `${xOffset}px`);
@@ -516,7 +495,6 @@
     }
   }
 
-  // --- EVENT HANDLERS & LOGIC ---
   const handleAddResource = (resource) => {
     state.sources = [...state.sources, resource];
     renderSourceList();
@@ -945,7 +923,6 @@
     updateSubtitleStyles();
   }
 
-  // --- INITIALIZATION ---
   async function init() {
     const root = document.getElementById('root');
     root.innerHTML = createAppHTML();
@@ -1001,7 +978,6 @@
     }
   }
 
-  // Run the app
   document.addEventListener('DOMContentLoaded', init);
 </script>
 </body>
